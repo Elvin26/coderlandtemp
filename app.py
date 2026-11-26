@@ -57,7 +57,6 @@ def function(message, history):
     return str(response.content)
 
 
-```python
 demo = gr.ChatInterface(
     fn=function,
     title="🔍 수학 탐험대!",
@@ -79,7 +78,6 @@ demo = gr.ChatInterface(
     fill_height=True,
     fill_width=False
 )
-```
 
 demo.launch(
     server_name="0.0.0.0",
