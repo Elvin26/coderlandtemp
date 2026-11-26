@@ -59,6 +59,7 @@ demo = gr.ChatInterface(
     # 3. title, theme 등 속성 설정하기
     title="수학의 비밀을 알려주는 AI봇",
     description="원하는 수학 궁금증을 질문해볼래?"
+)
 
 # 챗봇 객체를 실행해요.
 demo.launch(
