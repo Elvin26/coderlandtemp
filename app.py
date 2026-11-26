@@ -1,9 +1,7 @@
-
 import os
 import gradio as gr
 from langchain_openai import ChatOpenAI
 
-# 1. AI 설정하기 (하이퍼파라미터 설정)
 llm = ChatOpenAI(
     base_url="https://mlapi.run/e55afb4c-afa7-4b64-b80f-937f9000573e/v1",
     api_key=os.getenv("OPENAI_API_KEY"),
@@ -13,41 +11,58 @@ llm = ChatOpenAI(
     presence_penalty=0.0
 )
 
-# 2. 시스템 프롬프트 설정하기
-role = """너는 친절하게 수학을 알려주는 AI야.
-초등학생이 알아듣기 쉽게 대답하고
-수학과 관련된 재미있는 비밀을 3~5문장으로 알려줘."""
+role = """
+너는 친절하게 수학을 알려주는 AI야.
+초등학생이 알아듣기 쉽게 대답하고,
+수학과 관련된 재미있는 비밀을 3~5문장으로 알려줘.
+"""
 
-# ------------------------------------------------------
-# 챗봇에서 보내기 버튼을 클릭하면 실행될 동작을 정의해요.
 def function(message, history):
+    conversation = role + "\n\n"
 
-    # 역할을 memory에 저장해요.
-    memory = role + "\n"
+    # 이전 대화 기록 불러오기
+    for item in history or []:
 
-    # 이전 대화 내용을 하나씩 가져와요.
-    for user, ai in history:
-        memory += "사용자: " + user + "\n"
-        memory += "AI: " + ai + "\n"
+        # Gradio의 메시지 형식 처리
+        if isinstance(item, dict):
+            speaker = item.get("role")
+            content = item.get("content")
 
-    # 새로운 질문을 추가해요.
-    memory += "사용자: " + message + "\n"
+            if content is None:
+                continue
 
-    # AI에게 전체 대화 내용을 전달해요.
-    response = llm.invoke(memory)
+            if speaker == "user":
+                conversation += f"사용자: {content}\n"
+            elif speaker == "assistant":
+                conversation += f"AI: {content}\n"
 
-    # AI의 답변을 반환해요.
-    return response.content
+        # Gradio의 튜플 형식 처리
+        elif isinstance(item, (list, tuple)) and len(item) == 2:
+            user, ai = item
 
-# -------------------------------------------------------
-# 3. 챗봇 객체를 생성해요.
+            if user is not None:
+                conversation += f"사용자: {user}\n"
+
+            if ai is not None:
+                conversation += f"AI: {ai}\n"
+
+    # 현재 입력한 질문 추가
+    conversation += f"사용자: {message}\n"
+    conversation += "AI: "
+
+    # AI 답변 생성
+    response = llm.invoke(conversation)
+
+    # 답변 문자열만 반환 (대화 기록은 Gradio가 관리)
+    return str(response.content)
+
+
 demo = gr.ChatInterface(
     fn=function,
     title="수학의 비밀을 알려주는 AI봇",
     description="원하는 수학 궁금증을 질문해볼래?"
 )
 
-# 4. 챗봇 실행하기
 demo.launch(
     server_name="0.0.0.0",
     server_port=int(os.environ.get("PORT", 10000))
