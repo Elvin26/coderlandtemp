@@ -23,7 +23,7 @@ role = "너는 친절하게 수학을 알려주는AI야, 초등학생이 알아�
 def function(message, history, memory):
 
     # 이전 역할과 학생 정보를 가져와요.
-    conversation = memory
+    conversation = memory or ""
 
     # 이전 대화 기록을 하나씩 확인해요.
     for item in history or []:
