@@ -19,26 +19,39 @@ role = "너는 친절하게 수학을 알려주는AI야, 초등학생이 알아�
 
 # ------------------------------------------------------
 # 챗봇에서 보내기 버튼을 클릭하면 실행될 동작을 정의해요.
-def function(message, history):
-    # 대화 내용이 저장될 memory예요. 처음에는 시스템 프롬프트를 저장해요.
-    memory = role + "\n"
 
-    # history에는 사용자 메시지와 AI 메시지가 자동으로 저장돼요.
-    # 반복 탐색하며 각 사용자 메시지를 user에, AI 메시지를 ai에 저장해요.
-    for user, ai in history:
-        # user와 ai가 비어있지 않다면
-        if user and ai:
-            # memory에 user와 ai를 구분하여 저장해요.
-            memory += ("사용자:" + user + "\n")
-            memory += ("AI:" + ai + "\n")
-    
-    # message에는 최근 내가 입력한 질문이 적혀있어요. 이것도 memory에 추가해요.
-    memory += ("사용자:" + message + "\n")
-    # 대화 내용을 AI에게 전달하고 AIMessage 객체를 저장해요.
-    response = llm.invoke(memory)
-    # 저장된 AIMessage에서 content(AI응답)만 반환해요.
-    return response.content
-    
+def function(message, history, memory):
+
+    # 이전 역할과 학생 정보를 가져와요.
+    conversation = memory
+
+    # 이전 대화 기록을 하나씩 확인해요.
+    for item in history or []:
+
+        # 대화가 질문과 답변으로 구성되어 있는지 확인해요.
+        if isinstance(item, (list, tuple)) and len(item) == 2:
+
+            user, ai = item
+
+            if user and ai:
+                conversation += "사용자: " + user + "\n"
+                conversation += "AI: " + ai + "\n"
+
+    # 새롭게 입력한 질문을 추가해요.
+    conversation += "사용자: " + message + "\n"
+
+    # AI에게 전체 대화 내용을 전달해요.
+    response = llm.invoke(conversation)
+
+    # 기존 대화 기록을 복사해요.
+    new_history = list(history or [])
+
+    # 새로운 질문과 답변을 추가해요.
+    new_history.append((message, response.content))
+
+    # 전체 대화 기록을 반환해요.
+    return new_history
+
 # -------------------------------------------------------
 # 챗봇 객체를 생성해요.
 demo = gr.ChatInterface(
