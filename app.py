@@ -45,7 +45,6 @@ demo = gr.ChatInterface(
     fn=function,
     # 3. title, theme 등 속성 설정하기
     title="제목없음",
-    theme=gr.themes.Soft(),
     description="설명없음"
 )
 
