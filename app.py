@@ -57,11 +57,29 @@ def function(message, history):
     return str(response.content)
 
 
+```python
 demo = gr.ChatInterface(
     fn=function,
-    title="수학의 비밀을 알려주는 AI봇",
-    description="원하는 수학 궁금증을 질문해볼래?"
+    title="🔍 수학 탐험대!",
+    description="""
+    🧭 수학 탐험을 시작해 볼까요?
+
+    어려운 수학도 걱정하지 마세요!
+    초등학생 눈높이에 맞춰 쉽고 재미있게 설명해 줄게요.
+
+    ✨ 수학 속에 숨겨진 신기한 비밀도 함께 찾아봐요!
+    """,
+    examples=[
+        "분수는 왜 배우는 거야?",
+        "피타고라스 정리가 뭐야?",
+        "0은 누가 처음 만들었어?",
+        "곱셈을 쉽게 하는 방법을 알려줘!"
+    ],
+    submit_btn="질문하기 🚀",
+    fill_height=True,
+    fill_width=False
 )
+```
 
 demo.launch(
     server_name="0.0.0.0",
